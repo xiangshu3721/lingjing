@@ -100,6 +100,68 @@ def act(pg, sid, W, H):
         pg.screenshot(path=f'{SHOTS}/{TAG}_scene_{sid}_hypno.png')
         click_chip(pg, '催眠')
         return 300
+    if sid == 'vinyl':
+        import math
+        R = min(W * 0.4, H * 0.27)
+        rcx, rcy = W / 2 - R * 0.12, H * 0.46
+        px, py = rcx + R * 1.12, rcy - R * 0.95
+        a = math.pi / 2 + 0.15 + 0.05
+        hx, hy = px + math.cos(a) * R * 1.55, py + math.sin(a) * R * 1.55
+        a2 = math.pi / 2 + 0.15 + 0.5
+        tx, ty = px + math.cos(a2) * R * 1.55, py + math.sin(a2) * R * 1.55
+        pg.wait_for_timeout(2500)
+        drag(pg, [(hx, hy), ((hx + tx) / 2, (hy + ty) / 2), (tx, ty)])
+        pg.wait_for_timeout(1500)
+        pg.screenshot(path=f'{SHOTS}/{TAG}_scene_{sid}_playing.png')
+        pts = [(rcx + math.cos(t / 10 * 6.28) * R * 0.7, rcy + math.sin(t / 10 * 6.28) * R * 0.7) for t in range(12)]
+        drag(pg, pts)
+        click_chip(pg, '下一张')
+        pg.wait_for_timeout(1500)
+        return 500
+    if sid == 'recorder':
+        click_chip(pg, '录音')
+        pg.wait_for_timeout(1800)
+        click_chip(pg, '停止录音')
+        pg.wait_for_timeout(1200)
+        click_chip(pg, '变声')
+        click_chip(pg, '播放')
+        pg.wait_for_timeout(600)
+        pg.screenshot(path=f'{SHOTS}/{TAG}_scene_{sid}_playing.png')
+        return 300
+    if sid == 'ikebana':
+        tray_y = H - 150 + 8
+        gap = min(64, (W - 24) / 6)
+        for i in range(4):
+            x = W / 2 + (i - 2.5) * gap
+            drag(pg, [(x, tray_y), (x, tray_y - 120), (W / 2 + (i - 1.5) * 60, H * 0.25 + i * 20)])
+            pg.wait_for_timeout(150)
+        return 500
+    if sid == 'tea':
+        pg.mouse.move(W * 0.3, H * 0.35)
+        pg.mouse.down()
+        pg.mouse.move(W * 0.6, H * 0.45, steps=10)
+        pg.wait_for_timeout(2500)
+        pg.screenshot(path=f'{SHOTS}/{TAG}_scene_{sid}_pour.png')
+        pg.mouse.up()
+        return 1200
+    if sid == 'cards':
+        pg.mouse.click(W / 2, H * 0.45)
+        pg.wait_for_timeout(1400)
+        pg.mouse.click(W / 2, H * 0.62)
+        pg.wait_for_timeout(1500)
+        return 300
+    if sid in ('fudai', 'tangyuan'):
+        click_chip(pg, '开始')
+        for i in range(10):
+            pg.mouse.click(W * (0.2 + 0.06 * i), H * 0.5)
+            pg.wait_for_timeout(200)
+        drag(pg, [(W * 0.2, H * 0.75), (W * 0.8, H * 0.75), (W * 0.4, H * 0.75)])
+        return 1500
+    if sid == 'dressup':
+        for t in ['发型', '发型', '头饰', '眼镜', '面妆']:
+            click_chip(pg, t)
+            pg.wait_for_timeout(120)
+        return 400
     # 通用：点几下 + 拖动
     for i in range(3):
         pg.mouse.click(cx + (i - 1) * 60, cy)
@@ -129,7 +191,10 @@ def run_scene(b, sid, mode, vp, mobile):
         ctx.close()
         return
     info = None
-    if mode == 'fake':
+    if mode == 'fake' and sid == 'recorder':
+        info = pg.evaluate('window.__lingjing.info()')
+        ok(V + '无需摄像头（仅麦克风）', not info['cameraOk'], info)
+    elif mode == 'fake':
         try:
             pg.wait_for_function('(() => { const i = window.__lingjing.info(); return i.cameraOk && (i.modelsReady || i.delegate === ""); })()', timeout=60000)
             pg.wait_for_timeout(1500)
