@@ -162,6 +162,14 @@ def act(pg, sid, W, H):
             click_chip(pg, t)
             pg.wait_for_timeout(120)
         return 400
+    if sid == 'calligraphy':
+        drag(pg, [(W * 0.22, H * 0.36), (W * 0.78, H * 0.34)])
+        drag(pg, [(W * 0.48, H * 0.3), (W * 0.5, H * 0.62)])
+        drag(pg, [(W * 0.58, H * 0.46), (W * 0.72, H * 0.56)])
+        click_chip(pg, '淡墨')
+        drag(pg, [(W * 0.28, H * 0.7), (W * 0.48, H * 0.58), (W * 0.36, H * 0.78)])
+        click_chip(pg, '撤销')
+        return 400
     # 通用：点几下 + 拖动
     for i in range(3):
         pg.mouse.click(cx + (i - 1) * 60, cy)
