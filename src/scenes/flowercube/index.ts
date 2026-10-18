@@ -296,9 +296,9 @@ export function create(ctx: SceneContext): SceneInstance {
           let az = (dx / r) * swirl * R * 0.9 - (dz / r) * (r - R * (0.5 + 0.5 * Math.sin(i))) * 1.2;
           let ay = -dy * 0.9 + Math.sin(time * 1.3 + i * 0.37) * R * 0.25;
           if (chaos > 0.05) {
-            ax += Math.sin(time * 3 + i * 1.7) * R * 3 * chaos;
-            ay += Math.cos(time * 2.6 + i * 2.3) * R * 3 * chaos;
-            az += Math.sin(time * 2.2 + i * 0.9) * R * 3 * chaos;
+            ax += Math.sin(time * 3 + i * 1.7) * R * 1.8 * chaos;
+            ay += Math.cos(time * 2.6 + i * 2.3) * R * 1.8 * chaos;
+            az += Math.sin(time * 2.2 + i * 0.9) * R * 1.8 * chaos;
           }
           vel[j] = lerp(vel[j], ax, dt * 2.2);
           vel[j + 1] = lerp(vel[j + 1], ay, dt * 2.2);

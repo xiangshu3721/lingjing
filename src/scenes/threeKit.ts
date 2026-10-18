@@ -22,7 +22,13 @@ export const FOV = 45;
 
 export function createThreeStage(parent: HTMLElement, w: number, h: number, opts: { alpha?: boolean; dprCap?: number } = {}): ThreeStage {
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: opts.alpha ?? true, preserveDrawingBuffer: true, powerPreference: 'high-performance' });
-  renderer.setPixelRatio(Math.min(maxDpr(), opts.dprCap ?? 2));
+  let dpr = Math.min(maxDpr(), opts.dprCap ?? 2);
+  renderer.setPixelRatio(dpr);
+  // 自适应清晰度：连续掉帧时逐级降低像素比（低端机/软件渲染保流畅）
+  let lastT = 0;
+  let slow = 0;
+  let acc = 0;
+  let n = 0;
   renderer.setClearColor(0x000000, 0);
   renderer.domElement.className = 'layer';
   parent.appendChild(renderer.domElement);
@@ -51,6 +57,24 @@ export function createThreeStage(parent: HTMLElement, w: number, h: number, opts
       return out.set(x - st.w / 2, st.h / 2 - y, 0);
     },
     render() {
+      const now = performance.now();
+      if (lastT) {
+        acc += now - lastT;
+        n++;
+        if (n >= 30) {
+          const avg = acc / n;
+          slow = avg > 45 ? slow + 1 : 0;
+          if (slow >= 2 && dpr > 0.75) {
+            dpr = Math.max(0.75, dpr - 0.5);
+            renderer.setPixelRatio(dpr);
+            renderer.setSize(st.w, st.h, true);
+            slow = 0;
+          }
+          acc = 0;
+          n = 0;
+        }
+      }
+      lastT = now;
       renderer.render(scene, camera);
     },
     dispose() {

@@ -126,7 +126,7 @@ export function SceneShell({ def, onExit }: Props) {
       }
       layers.querySelectorAll('canvas').forEach((cv) => {
         const el = cv as HTMLCanvasElement;
-        if (el.style.display === 'none' || !el.width) return;
+        if (el.style.display === 'none' || !el.width || el.dataset.nophoto) return;
         const op = parseFloat(getComputedStyle(el).opacity || '1');
         g.globalAlpha = op;
         g.drawImage(el, 0, 0, w, h);
@@ -246,6 +246,7 @@ export function SceneShell({ def, onExit }: Props) {
     let fpsT = last;
     let statusT = 0;
     let lastFrame: InputFrame | null = null;
+    let detectMs = 0;
     const others = needKinds.filter((k) => k !== 'hand');
 
     const loop = (now: number) => {
@@ -276,12 +277,22 @@ export function SceneShell({ def, onExit }: Props) {
           }
         }
         const cost = performance.now() - t0;
-        nextDetect = now + Math.min(120, Math.max(30, cost * 1.4));
+        detectMs = detectMs ? detectMs * 0.8 + cost * 0.2 : cost;
+        // 识别耗时越大，间隔越长，保证至少一半时间留给画面渲染（慢设备也不卡死）
+        nextDetect = now + Math.min(400, Math.max(30, detectMs * 1.4, detectMs < 60 ? 0 : detectMs * 2));
       }
       // 过期结果丢弃
-      for (const k of ['hand', 'face', 'pose'] as const) if (raw[k] && now - rawT[k] > 500) raw[k] = null;
+      for (const k of ['hand', 'face', 'pose'] as const) if (raw[k] && now - rawT[k] > 500 + detectMs * 3) raw[k] = null;
       if (!cover && cameraOk) updateCover();
-      const f = input.build(raw, cover, now, dt, w, h, tracking);
+      // 自动化测试用：注入合成的手部关键点（归一化，相对 640x480 视频）
+      const fake = (window as unknown as { __lingjingFakeHands?: { x: number; y: number; z: number }[][] }).__lingjingFakeHands;
+      let fcover = cover;
+      if (fake) {
+        raw.hand = { landmarks: fake, worldLandmarks: [], handedness: [], handednesses: [] } as unknown as HandLandmarkerResult;
+        rawT.hand = now;
+        if (!fcover) fcover = computeCover(640, 480, w, h, true);
+      }
+      const f = input.build(raw, fcover, now, dt, w, h, tracking || !!fake);
       lastFrame = f;
       try {
         scene?.update(f);
@@ -333,6 +344,7 @@ export function SceneShell({ def, onExit }: Props) {
       info: () => ({
         scene: meta.id,
         fps: Math.round(fps),
+        detectMs: Math.round(detectMs),
         cameraOk,
         modelsReady,
         delegate: needKinds.map((k) => `${k}:${getDelegate(k) ?? '-'}`).join(','),
