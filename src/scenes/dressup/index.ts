@@ -522,6 +522,8 @@ export function create(ctx: SceneContext): SceneInstance {
       }
       c.clear();
       const g = c.ctx;
+      // 开着摄像头但暂时没看到脸：示意人像半透明，不挡住画面
+      g.globalAlpha = f.face ? 1 : f.tracking ? 0.3 : 1;
       if (!f.face) drawDummy(g, F);
       const cos = Math.cos(-F.roll), sin = Math.sin(-F.roll);
       const toLocal = (p: Pt): Pt => {
@@ -546,8 +548,9 @@ export function create(ctx: SceneContext): SceneInstance {
         g.fillStyle = `rgba(243,226,176,${flash})`;
         g.fillText(`${cat.name} · ${cat.opts[sel[active]]}`, w / 2, 110);
       }
+      g.globalAlpha = 1;
       if (!f.face) {
-        g.font = `13px ${FONT}`;
+        g.font = `${f.tracking ? 16 : 13}px ${FONT}`;
         g.textAlign = 'center';
         g.fillStyle = 'rgba(236,231,220,0.7)';
         g.fillText(f.tracking ? '把脸对准镜头' : '示意人像 · 打开摄像头会戴到你脸上', w / 2, h * 0.13 + 8);

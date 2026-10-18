@@ -16,13 +16,18 @@ export function create(ctx: SceneContext): SceneInstance {
   const fx = canvas2d(ctx.root, ctx.width, ctx.height);
   const { scene } = st;
 
-  const faceMat = (color: number, opacity: number) =>
-    new THREE.MeshBasicMaterial({ color, transparent: true, opacity, side: THREE.DoubleSide, depthWrite: false, blending: THREE.NormalBlending });
+  const faceMat = (color: number, opacity: number, side: THREE.Side) =>
+    new THREE.MeshBasicMaterial({ color, transparent: true, opacity, side, depthWrite: false, blending: THREE.NormalBlending });
   // 顺序：+x, -x, +y, -y, +z(正面), -z
-  const mats = [faceMat(0xff3fa4, 0.62), faceMat(0xff3fa4, 0.62), faceMat(0xa15cff, 0.62), faceMat(0xa15cff, 0.62), faceMat(0x39ff7a, 0.72), faceMat(0x7a3cff, 0.5)];
+  const palette: [number, number][] = [[0xff3fa4, 0.62], [0xff3fa4, 0.62], [0xa15cff, 0.62], [0xa15cff, 0.62], [0x39ff7a, 0.8], [0x7a3cff, 0.5]];
   const geo = new THREE.BoxGeometry(1, 1, 1);
-  const box = new THREE.Mesh(geo, mats);
-  box.renderOrder = 1;
+  // 半透明盒子：先画背面（远处的面），再画正面，保证绿色正面总在最上层、颜色不被混脏
+  const boxBack = new THREE.Mesh(geo, palette.map(([c, o]) => faceMat(c, o * 0.7, THREE.BackSide)));
+  boxBack.renderOrder = 1;
+  const boxFront = new THREE.Mesh(geo, palette.map(([c, o]) => faceMat(c, o, THREE.FrontSide)));
+  boxFront.renderOrder = 2;
+  const box = new THREE.Group();
+  box.add(boxBack, boxFront);
 
   const edges = new THREE.EdgesGeometry(geo);
   const lg = new LineSegmentsGeometry().fromEdgesGeometry(edges);

@@ -27,6 +27,8 @@ export function SceneShell({ def, onExit }: Props) {
   const stageRef = useRef<HTMLDivElement>(null);
   const layersRef = useRef<HTMLDivElement>(null);
   const uiRef = useRef<HTMLDivElement>(null);
+  const barRef = useRef<HTMLDivElement>(null);
+  const [barH, setBarH] = useState(0);
   const videoRef = useRef<HTMLVideoElement>(null);
   const cursorRef = useRef<HTMLCanvasElement>(null);
   const statusRef = useRef<HTMLSpanElement>(null);
@@ -379,6 +381,15 @@ export function SceneShell({ def, onExit }: Props) {
     };
   }, [def, retryKey]);
 
+  // 提示条始终放在底部按钮区上方，避免和多行按钮重叠
+  useEffect(() => {
+    const bar = barRef.current;
+    if (!bar || typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(() => setBarH(bar.offsetHeight));
+    ro.observe(bar);
+    return () => ro.disconnect();
+  }, []);
+
   useEffect(() => {
     const t = setTimeout(() => setHintOpen(false), 9000);
     return () => clearTimeout(t);
@@ -443,13 +454,13 @@ export function SceneShell({ def, onExit }: Props) {
         </div>
       )}
       {hintOpen && (
-        <div className="hint" onClick={() => setHintOpen(false)}>
+        <div className="hint" style={barH > 80 ? { bottom: barH + 10 } : undefined} onClick={() => setHintOpen(false)}>
           <p>{hint}</p>
           <p className="sub">触屏：{meta.touchHint}</p>
         </div>
       )}
       {toast && <div className="toast">{toast}</div>}
-      <div className="bottom-bar">
+      <div className="bottom-bar" ref={barRef}>
         <div className="scene-ui" ref={uiRef} />
         {meta.photo && (
           <button className="shutter" onClick={takePhoto} aria-label="拍照保存">
