@@ -178,6 +178,22 @@ export const SCENES: SceneDef[] = [
   },
   {
     meta: {
+      id: 'calligraphy',
+      title: '写书法',
+      tagline: '捏合落笔，在宣纸上写一笔有锋的字',
+      group: 'create',
+      inputs: ['hand', 'touch'],
+      needs: { hand: true },
+      hint: '捏住拇指和食指写，松开收笔。慢一点笔更饱，快一点会飞白',
+      touchHint: '按住拖动写字，松手抬笔。可以换浓淡、撤销、清空，或保存到本机',
+      video: 0,
+      photo: true,
+      cover: { from: '#f6efe2', to: '#e4d3b0', glyph: '书', accent: '#1a1714', art: 'calligraphy' },
+    },
+    load: () => import('./calligraphy'),
+  },
+  {
+    meta: {
       id: 'cards',
       title: '节气签',
       tagline: '挥手洗牌，捏一张，翻开今日的二十四节气签',

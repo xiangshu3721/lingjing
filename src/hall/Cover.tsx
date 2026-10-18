@@ -122,6 +122,15 @@ const ART: Record<string, JSX.Element> = {
       <circle cx="118" cy="86" r="5" fill="#1a1714" stroke="none" /><circle cx="128" cy="80" r="2" fill="#1a1714" stroke="none" />
     </>
   ),
+  calligraphy: (
+    <>
+      <path d="M34 78c16-26 30-24 44-4 8 12 18 8 28-8 8-12 16-6 22-16" stroke="#1a1714" strokeWidth="4.5" />
+      <path d="M46 48c10 4 16 12 26 8" stroke="#1a1714" strokeWidth="2" />
+      <path d="M28 24h104M28 24v70" stroke="rgba(92,62,32,0.55)" strokeWidth="0.7" />
+      <rect x="108" y="72" width="22" height="22" stroke="#b42a24" strokeWidth="1.5" />
+      <text x="119" y="88" fontSize="11" textAnchor="middle" fill="#b42a24" stroke="none" fontFamily="serif">印</text>
+    </>
+  ),
   cards: (
     <>
       <rect x="44" y="36" width="30" height="48" rx="3" transform="rotate(-14 59 60)" fill="rgba(27,42,38,0.9)" />

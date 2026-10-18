@@ -11,7 +11,7 @@ export const GROUPS: { id: SceneGroup; title: string; desc: string }[] = [
   { id: 'replica', title: '指间幻术', desc: '视频同款 · 捏合、张手、比 L，空气里出现奇迹' },
   { id: 'zen', title: '东方疗愈', desc: '颂钵、木鱼、茶与花 · 慢下来' },
   { id: 'music', title: '声音小馆', desc: '黑胶与磁带 · 声音都在本机合成与保存' },
-  { id: 'create', title: '以身作画', desc: '手是笔，身体是墨' },
+  { id: 'create', title: '以身作画', desc: '捏合写字，挥掌泼墨' },
   { id: 'play', title: '体感游戏', desc: '动动手、张张嘴' },
   { id: 'style', title: 'AR 换装', desc: '发髻、面具、汉服领 · 一键拍照' },
 ];
